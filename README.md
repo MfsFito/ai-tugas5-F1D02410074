@@ -130,8 +130,6 @@ ai-tugas5-NIM/
     └── pengujian_4_konflik_UD.png
 ```
 
-Folder `screenshot` digunakan untuk menyimpan bukti pengujian aplikasi. Nama file gambar di atas merupakan nama yang disarankan; sesuaikan dengan nama file screenshot yang benar-benar dimasukkan ke repository.
-
 ## 9. Cara Menjalankan Program
 
 ### Persyaratan

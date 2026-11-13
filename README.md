@@ -1,18 +1,13 @@
 # Sistem Pakar Identifikasi Jenis Konflik dan Rekomendasi Penanganan Merge Conflict pada Git
 
+- **Nama:** Muhamad Fatio Sodirin
+- **NIM:** F1D02410074
+
+
 **Metode:** Forward Chaining  
 **Bahasa pemrograman:** Python  
 **Basis pengetahuan:** JSON
 
-## Identitas
-
-- **Nama:** Muhamad Fatio Sodirin
-- **NIM:** F1D02410074
-- **Program Studi:** Informatika
-- **Perguruan Tinggi:** Universitas Mataram
-- **Mata Kuliah:** Kecerdasan Buatan
-
-> Jika identitas atau penamaan mata kuliah pada kelas berbeda, sesuaikan bagian ini sebelum mengumpulkan.
 
 ## 1. Deskripsi Proyek
 

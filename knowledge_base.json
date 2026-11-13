@@ -1,0 +1,272 @@
+{
+  "project": {
+    "title": "Sistem Pakar Identifikasi Jenis Konflik dan Rekomendasi Penanganan Merge Conflict pada Git",
+    "language": "Python",
+    "inference_method": "Forward Chaining",
+    "knowledge_base_format": "JSON",
+    "version": "1.0",
+    "scope": "Identifikasi awal konflik ketika menjalankan git merge, dengan fokus pada konflik konten teks dan konflik modify/delete.",
+    "limitations": [
+      "Sistem menggunakan jawaban pengguna dan tidak membaca repository Git secara otomatis.",
+      "Sistem tidak mengubah file, menjalankan perintah Git, atau menyelesaikan konflik secara otomatis.",
+      "Sistem tidak menentukan perubahan kode mana yang benar; keputusan isi akhir tetap dilakukan pengguna.",
+      "Sistem hanya memberikan identifikasi dan rekomendasi awal berdasarkan fakta yang dimasukkan."
+    ],
+    "answer_convention": {
+      "yes": "Fakta dimasukkan ke Working Memory.",
+      "no": "Fakta tidak dimasukkan ke Working Memory.",
+      "unknown": "Fakta tidak dimasukkan ke Working Memory dan dianggap belum diketahui, bukan dianggap salah."
+    }
+  },
+  "sources": [
+    {
+      "id": "S1",
+      "organization": "Git Project",
+      "title": "Pro Git - Basic Branching and Merging",
+      "url": "https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging",
+      "used_for": [
+        "Penjelasan konflik ketika bagian yang sama pada file diubah secara berbeda pada dua branch.",
+        "Pesan konflik saat merge.",
+        "Unmerged paths, both modified, dan conflict markers seperti <<<<<<<, =======, dan >>>>>>>.",
+        "Penyelesaian konflik dengan mengedit file lalu menjalankan git add."
+      ],
+      "accessed_on": "2026-11-13"
+    },
+    {
+      "id": "S2",
+      "organization": "Git Project",
+      "title": "Git Documentation - git-status",
+      "url": "https://git-scm.com/docs/git-status",
+      "used_for": [
+        "Arti kode status pendek UU untuk both modified.",
+        "Arti kode status pendek DU untuk deleted by us.",
+        "Arti kode status pendek UD untuk deleted by them.",
+        "Penjelasan bahwa path yang belum terselesaikan dalam konflik merge disebut unmerged."
+      ],
+      "accessed_on": "2026-11-13"
+    },
+    {
+      "id": "S3",
+      "organization": "Git Project",
+      "title": "Git Documentation - git-merge",
+      "url": "https://git-scm.com/docs/git-merge",
+      "used_for": [
+        "Perintah git merge --abort untuk membatalkan proses merge yang sedang berlangsung.",
+        "Perintah git merge --continue atau git commit setelah konflik diselesaikan dan file ditandai selesai.",
+        "Peringatan bahwa --abort mungkin tidak dapat memulihkan seluruh perubahan lokal yang belum di-commit dalam kondisi tertentu."
+      ],
+      "accessed_on": "2026-11-13"
+    }
+  ],
+  "facts": [
+    {
+      "id": "merge_conflict_message",
+      "label": "Pesan konflik dari Git",
+      "question": "Setelah menjalankan git merge, apakah terminal menampilkan pesan seperti CONFLICT atau Automatic merge failed?",
+      "input_type": "yes_no_unknown",
+      "how_to_check": "Perhatikan keluaran terminal tepat setelah menjalankan perintah git merge.",
+      "evidence_command": "git merge <nama-branch>"
+    },
+    {
+      "id": "unmerged_paths",
+      "label": "Unmerged paths",
+      "question": "Apakah perintah git status menampilkan bagian Unmerged paths atau keterangan bahwa masih ada path yang belum digabung?",
+      "input_type": "yes_no_unknown",
+      "how_to_check": "Jalankan git status di dalam repository yang sedang mengalami konflik.",
+      "evidence_command": "git status"
+    },
+    {
+      "id": "conflict_markers_present",
+      "label": "Conflict markers ditemukan",
+      "question": "Apakah file yang konflik menampilkan penanda seperti <<<<<<<, =======, dan >>>>>>>?",
+      "input_type": "yes_no_unknown",
+      "how_to_check": "Buka file yang ditandai konflik menggunakan editor kode. Penanda ini umum ditemukan pada konflik teks.",
+      "evidence_command": "Buka file yang tercantum pada git status"
+    },
+    {
+      "id": "status_UU",
+      "label": "Kode status UU",
+      "question": "Apakah git status --short menampilkan kode UU pada file yang konflik?",
+      "input_type": "yes_no_unknown",
+      "how_to_check": "Pada format pendek git status, UU berarti file diubah pada kedua sisi merge (both modified).",
+      "evidence_command": "git status --short"
+    },
+    {
+      "id": "status_DU",
+      "label": "Kode status DU",
+      "question": "Apakah git status --short menampilkan kode DU pada file yang konflik?",
+      "input_type": "yes_no_unknown",
+      "how_to_check": "Pada format pendek git status, DU berarti file dihapus oleh sisi saat ini (deleted by us) dan mengalami konflik dengan perubahan dari sisi yang digabungkan.",
+      "evidence_command": "git status --short"
+    },
+    {
+      "id": "status_UD",
+      "label": "Kode status UD",
+      "question": "Apakah git status --short menampilkan kode UD pada file yang konflik?",
+      "input_type": "yes_no_unknown",
+      "how_to_check": "Pada format pendek git status, UD berarti file dihapus oleh sisi yang digabungkan (deleted by them) dan mengalami konflik dengan sisi saat ini.",
+      "evidence_command": "git status --short"
+    },
+    {
+      "id": "merge_in_progress",
+      "label": "Merge masih berlangsung",
+      "question": "Apakah proses merge masih berlangsung dan belum diselesaikan dengan commit?",
+      "input_type": "yes_no_unknown",
+      "how_to_check": "Periksa keluaran git status. Kondisi seperti masih ada unmerged paths atau semua konflik sudah diperbaiki tetapi masih merging menunjukkan proses merge belum ditutup.",
+      "evidence_command": "git status"
+    },
+    {
+      "id": "user_wants_abort",
+      "label": "Pengguna ingin membatalkan merge",
+      "question": "Apakah kamu memang ingin membatalkan proses merge dan mencoba kembali ke keadaan sebelum merge dimulai?",
+      "input_type": "yes_no_unknown",
+      "how_to_check": "Ini merupakan keputusan pengguna, bukan status yang dibaca Git. Pastikan perubahan yang belum di-commit sudah dipertimbangkan sebelum membatalkan merge."
+    },
+    {
+      "id": "all_conflicts_resolved",
+      "label": "Semua konflik sudah diselesaikan",
+      "question": "Apakah semua bagian konflik sudah kamu periksa dan selesaikan secara manual, termasuk menghapus conflict markers yang memang ada?",
+      "input_type": "yes_no_unknown",
+      "how_to_check": "Buka kembali setiap file yang konflik dan pastikan isi akhirnya sudah sesuai keinginan. Jangan hanya menghapus penanda tanpa memeriksa isi kode."
+    },
+    {
+      "id": "resolved_files_staged",
+      "label": "File hasil penyelesaian sudah di-stage",
+      "question": "Apakah semua file konflik yang sudah diselesaikan sudah ditambahkan ke staging menggunakan git add?",
+      "input_type": "yes_no_unknown",
+      "how_to_check": "Periksa git status. File yang telah diselesaikan perlu ditandai sebagai resolved dengan git add sebelum merge dilanjutkan.",
+      "evidence_command": "git add <nama-file>"
+    }
+  ],
+  "conclusions": [
+    {
+      "id": "merge_conflict_confirmed",
+      "label": "Konflik merge terkonfirmasi",
+      "description": "Git melaporkan konflik dan repository menunjukkan path yang belum berhasil digabungkan."
+    },
+    {
+      "id": "textual_content_conflict",
+      "label": "Konflik konten teks teridentifikasi",
+      "description": "File yang mengalami konflik memuat conflict markers sehingga isi dari kedua sisi perlu diperiksa dan disatukan secara manual."
+    },
+    {
+      "id": "both_modified_conflict",
+      "label": "Konflik both modified teridentifikasi",
+      "description": "Kode UU menunjukkan file yang sama mengalami perubahan pada kedua sisi merge."
+    },
+    {
+      "id": "deleted_by_current_branch_conflict",
+      "label": "Konflik modify/delete: dihapus oleh branch saat ini",
+      "description": "Kode DU menunjukkan file dihapus pada sisi saat ini, sementara sisi yang digabungkan memiliki perubahan pada file tersebut."
+    },
+    {
+      "id": "deleted_by_incoming_branch_conflict",
+      "label": "Konflik modify/delete: dihapus oleh branch yang digabungkan",
+      "description": "Kode UD menunjukkan file dihapus pada sisi yang digabungkan, sementara sisi saat ini memiliki perubahan pada file tersebut."
+    },
+    {
+      "id": "abort_merge_recommended",
+      "label": "Pembatalan merge dapat dipertimbangkan",
+      "description": "Pengguna memilih untuk membatalkan proses merge yang masih berlangsung."
+    },
+    {
+      "id": "continue_merge_recommended",
+      "label": "Merge siap dilanjutkan",
+      "description": "Semua konflik sudah diselesaikan dan file terkait sudah ditandai selesai di staging, sementara proses merge masih berlangsung."
+    }
+  ],
+  "rules": [
+    {
+      "id": "R1",
+      "name": "Konfirmasi terjadinya konflik merge",
+      "operator": "AND",
+      "premises": [
+        "merge_conflict_message",
+        "unmerged_paths"
+      ],
+      "conclusion": "merge_conflict_confirmed",
+      "explanation": "Pesan konflik dari Git disertai status Unmerged paths menunjukkan bahwa proses penggabungan berhenti karena ada path yang belum terselesaikan.",
+      "recommendation": "Periksa daftar file pada git status, lalu identifikasi kode status setiap file yang konflik.",
+      "source_ids": ["S1", "S2"]
+    },
+    {
+      "id": "R2",
+      "name": "Identifikasi konflik konten teks",
+      "operator": "AND",
+      "premises": [
+        "merge_conflict_confirmed",
+        "conflict_markers_present"
+      ],
+      "conclusion": "textual_content_conflict",
+      "explanation": "Setelah konflik merge terkonfirmasi, keberadaan conflict markers menunjukkan bagian teks yang perlu diperiksa dan disatukan oleh pengguna.",
+      "recommendation": "Bandingkan bagian dari kedua sisi, tentukan isi akhir yang benar, hapus conflict markers setelah penyelesaian, lalu jalankan git add <nama-file>.",
+      "source_ids": ["S1"]
+    },
+    {
+      "id": "R3",
+      "name": "Identifikasi konflik both modified",
+      "operator": "AND",
+      "premises": [
+        "merge_conflict_confirmed",
+        "status_UU"
+      ],
+      "conclusion": "both_modified_conflict",
+      "explanation": "Kode UU pada git status --short menunjukkan bahwa file mengalami perubahan pada kedua sisi merge dan belum terselesaikan.",
+      "recommendation": "Periksa perubahan dari kedua branch, gabungkan bagian yang memang diperlukan, kemudian tandai file sebagai selesai dengan git add <nama-file>.",
+      "source_ids": ["S2", "S1"]
+    },
+    {
+      "id": "R4",
+      "name": "Identifikasi modify/delete: deleted by us",
+      "operator": "AND",
+      "premises": [
+        "merge_conflict_confirmed",
+        "status_DU"
+      ],
+      "conclusion": "deleted_by_current_branch_conflict",
+      "explanation": "Kode DU berarti file dihapus pada sisi branch saat ini, sedangkan sisi yang digabungkan memiliki perubahan pada file tersebut.",
+      "recommendation": "Tentukan apakah file perlu dipertahankan atau tetap dihapus. Setelah keputusan dan penyelesaian dilakukan, tandai hasilnya menggunakan git add atau git rm sesuai keputusan.",
+      "source_ids": ["S2"]
+    },
+    {
+      "id": "R5",
+      "name": "Identifikasi modify/delete: deleted by them",
+      "operator": "AND",
+      "premises": [
+        "merge_conflict_confirmed",
+        "status_UD"
+      ],
+      "conclusion": "deleted_by_incoming_branch_conflict",
+      "explanation": "Kode UD berarti file dihapus pada sisi branch yang digabungkan, sedangkan sisi branch saat ini memiliki perubahan pada file tersebut.",
+      "recommendation": "Tentukan apakah file perlu dipertahankan atau tetap dihapus. Setelah keputusan dan penyelesaian dilakukan, tandai hasilnya menggunakan git add atau git rm sesuai keputusan.",
+      "source_ids": ["S2"]
+    },
+    {
+      "id": "R6",
+      "name": "Rekomendasi membatalkan proses merge",
+      "operator": "AND",
+      "premises": [
+        "merge_in_progress",
+        "user_wants_abort"
+      ],
+      "conclusion": "abort_merge_recommended",
+      "explanation": "Proses merge masih berlangsung dan pengguna memilih untuk membatalkannya. Git menyediakan opsi --abort untuk membatalkan proses merge dan mencoba mengembalikan keadaan sebelum merge.",
+      "recommendation": "Pertimbangkan perubahan lokal yang belum di-commit terlebih dahulu, kemudian jalankan git merge --abort. Dalam kondisi tertentu, perubahan lokal sebelum merge mungkin tidak dapat dipulihkan sepenuhnya.",
+      "source_ids": ["S3"]
+    },
+    {
+      "id": "R7",
+      "name": "Rekomendasi melanjutkan proses merge",
+      "operator": "AND",
+      "premises": [
+        "merge_in_progress",
+        "all_conflicts_resolved",
+        "resolved_files_staged"
+      ],
+      "conclusion": "continue_merge_recommended",
+      "explanation": "Merge masih berlangsung, semua konflik telah diselesaikan, dan file hasil penyelesaian sudah ditandai selesai di staging.",
+      "recommendation": "Periksa kembali git status, lalu jalankan git merge --continue atau git commit untuk menyelesaikan merge.",
+      "source_ids": ["S3"]
+    }
+  ]
+}

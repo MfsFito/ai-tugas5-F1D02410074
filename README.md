@@ -1,13 +1,13 @@
 # Sistem Pakar Identifikasi Jenis Konflik dan Rekomendasi Penanganan Merge Conflict pada Git
 
-- **Nama:** Muhamad Fatio Sodirin
-- **NIM:** F1D02410074
-
-
 **Metode:** Forward Chaining  
 **Bahasa pemrograman:** Python  
 **Basis pengetahuan:** JSON
 
+## Identitas
+
+- **Nama:** Muhamad Fatio Sodirin
+- **NIM:** F1D02410074
 
 ## 1. Deskripsi Proyek
 
@@ -30,6 +30,10 @@ Pengguna yang masih mempelajari Git dapat mengalami kesulitan dalam memahami jen
 
 ## 4. Ruang Lingkup dan Batasan
 
+**Batas keberlakuan:** Basis pengetahuan sistem ini disusun dari dokumentasi resmi Pro Git karya Scott Chacon dan Ben Straub (penerbit Apress), serta dokumentasi resmi Git Project untuk perintah `git-status` dan `git-merge`. Pengetahuan tersebut digunakan untuk membantu pengguna Git memeriksa kondisi ketika proses `git merge` pada repository menghasilkan konflik yang belum terselesaikan, terutama konflik konten (`UU`), konflik *modify/delete* (`DU` dan `UD`), serta keadaan untuk membatalkan atau melanjutkan merge. Hasil sistem merupakan identifikasi dan saran awal berdasarkan jawaban pengguna, bukan keputusan akhir. Pengguna tetap harus memeriksa repository, menilai perubahan kode, dan menentukan sendiri penyelesaian konflik.
+
+Paragraf batas keberlakuan ini juga ditampilkan ketika aplikasi dijalankan.
+
 - Sistem membahas identifikasi awal konflik ketika menjalankan `git merge`.
 - Jenis konflik yang dibahas meliputi konflik konten (*both modified*) dan konflik *modify/delete* (`DU` dan `UD`).
 - Sistem juga menyediakan rekomendasi ketika pengguna ingin membatalkan merge atau melanjutkan merge yang konfliknya sudah diselesaikan.
@@ -47,8 +51,6 @@ Pengguna yang masih mempelajari Git dapat mengalami kesulitan dalam memahami jen
 | `json` | Modul bawaan Python untuk membaca file JSON |
 | Git | Teknologi yang menjadi ruang lingkup kasus yang diidentifikasi |
 
-Tidak diperlukan instalasi library Python tambahan. Program menggunakan modul bawaan Python.
-
 ## 6. Metode Forward Chaining
 
 Forward Chaining merupakan metode penalaran yang memulai proses dari fakta awal, kemudian mencocokkan fakta tersebut dengan premis pada aturan IF–THEN. Ketika seluruh premis suatu aturan terpenuhi, kesimpulan aturan ditambahkan sebagai fakta baru ke dalam *Working Memory*. Fakta baru tersebut dapat digunakan untuk memeriksa aturan lainnya. Proses berhenti ketika tidak ada fakta baru yang dapat ditambahkan.
@@ -63,6 +65,8 @@ Alur pada aplikasi:
 6. Program menampilkan aturan yang aktif, kesimpulan, penjelasan, rekomendasi, dan sumber.
 
 Dalam proyek ini, operator `AND` berarti seluruh premis harus terpenuhi. Mesin inferensi juga mendukung operator `OR`, meskipun aturan basis pengetahuan saat ini menggunakan `AND`.
+
+**Alasan memilih Forward Chaining:** sistem ini dimulai dari kondisi yang diketahui pengguna, seperti pesan konflik, keluaran `git status`, dan kode status file. Fakta-fakta tersebut tersedia terlebih dahulu sebelum sistem menentukan jenis konflik. Karena itu, pendekatan yang bergerak dari fakta awal menuju kesimpulan sesuai dengan alur masalah. Forward Chaining juga memungkinkan hasil satu aturan, seperti konfirmasi konflik dari R1, digunakan sebagai premis bagi aturan berikutnya seperti R2 sampai R5. Backward Chaining kurang sesuai untuk rancangan ini karena sistem tidak memulai pemeriksaan dari satu hipotesis tertentu yang harus dibuktikan.
 
 ### Contoh Rule Chaining
 
@@ -98,11 +102,15 @@ Dalam istilah Git, “sisi saat ini” mengacu pada branch yang sedang digunakan
 
 ### Sumber Referensi
 
-- **S1 — Pro Git, Basic Branching and Merging:** https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging
-- **S2 — Git Documentation, git-status:** https://git-scm.com/docs/git-status
-- **S3 — Git Documentation, git-merge:** https://git-scm.com/docs/git-merge
+Tanggal akses seluruh sumber: **13 November 2026**.
 
-Sumber-sumber tersebut digunakan untuk mendukung penjelasan proses merge, konflik konten, conflict markers, kode status konflik, serta perintah untuk membatalkan dan melanjutkan proses merge. Setiap aturan pada file JSON mencantumkan ID sumber yang menjadi rujukannya.
+| Kode | Judul sumber | Penulis / Penerbit | URL | Tanggal akses |
+|---|---|---|---|---|
+| S1 | *Pro Git*, Edisi Kedua, Bab 3.2 – Basic Branching and Merging | Scott Chacon dan Ben Straub; Apress (2014). Diakses melalui situs resmi Pro Git. | https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging | 13 November 2026 |
+| S2 | Git Documentation – `git-status` | Git Project (dokumentasi resmi Git). | https://git-scm.com/docs/git-status | 13 November 2026 |
+| S3 | Git Documentation – `git-merge` | Git Project (dokumentasi resmi Git). | https://git-scm.com/docs/git-merge | 13 November 2026 |
+
+S1 digunakan untuk mendukung penjelasan proses merge, konflik konten, `Unmerged paths`, dan conflict markers. S2 digunakan untuk memeriksa arti kode status `UU`, `DU`, dan `UD`. S3 digunakan untuk mendukung rekomendasi `git merge --abort` dan `git merge --continue`. Setiap aturan pada `knowledge_base.json` mencantumkan ID sumber yang menjadi rujukannya.
 
 ## 8. Struktur Folder
 
@@ -128,7 +136,7 @@ Folder `screenshot` digunakan untuk menyimpan bukti pengujian aplikasi. Nama fil
 
 ### Persyaratan
 
-- Python 3 terpasang pada komputer.
+- Python 3.14.4 (64-bit), sesuai versi yang digunakan saat pengujian pada komputer pengembang.
 - Seluruh file program dan `knowledge_base.json` berada pada folder proyek yang sama.
 
 ### Menjalankan aplikasi
@@ -259,11 +267,11 @@ Hasil aktual pengujian dapat diperiksa kembali dengan menjalankan `python -m uni
 
 ## 12. Penggunaan AI dalam Pengerjaan
 
-Dalam pengerjaan proyek ini, saya menggunakan ChatGPT sebagai alat bantu pembelajaran dan pengembangan sistem pakar. ChatGPT membantu dalam mendiskusikan pemilihan tema, menentukan ruang lingkup permasalahan, memahami dokumentasi Git, merancang struktur basis pengetahuan JSON, serta memberikan penjelasan dan contoh implementasi kode Python menggunakan metode Forward Chaining.
+Dalam pengerjaan proyek ini, saya menggunakan ChatGPT sebagai alat bantu pembelajaran dan pengembangan sistem pakar. ChatGPT membantu dalam menentukan ruang lingkup permasalahan, memahami dokumentasi Git, merancang struktur basis pengetahuan JSON, serta memberikan penjelasan dan contoh implementasi kode Python menggunakan metode Forward Chaining.
 
 Beberapa bagian kode program dan rancangan aturan IF–THEN juga dikembangkan dengan bantuan ChatGPT sebagai dasar implementasi yang kemudian saya pelajari dan periksa kembali.
 
-Adapun keterlibatan saya dalam pengerjaan proyek meliputi pemilihan dan penentuan tema akhir, pemilihan teknologi Python dan JSON, menyiapkan struktur proyek pada komputer, menjalankan dan mempelajari program melalui Visual Studio Code, meninjau fakta serta aturan berdasarkan dokumentasi Git, dan melakukan percobaan menggunakan repository Git untuk memahami kondisi konflik yang menjadi objek sistem pakar.
+Dalam pengerjaan proyek ini, saya juga melakukan beberapa hal seperti menentukan tema, pemilihan teknologi Python dan JSON, menyiapkan struktur proyek pada komputer, menjalankan dan mempelajari program melalui Visual Studio Code, meninjau fakta serta aturan berdasarkan dokumentasi Git, dan melakukan percobaan menggunakan repository Git untuk memahami kondisi konflik yang menjadi objek sistem pakar.
 
 Saya juga mempelajari hubungan antara fakta awal, Working Memory, aturan IF–THEN, proses penarikan kesimpulan, serta rekomendasi yang dihasilkan sistem. Hasil implementasi dan pengujian diperiksa kembali agar sesuai dengan tujuan dan ruang lingkup proyek.
 
